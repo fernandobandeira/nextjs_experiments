@@ -35,7 +35,6 @@ export const getStaticProps: GetStaticProps = async () => {
 export default function Bitcoin({ result }: { result: Result }) {
   const { data } = useSWR("/bitcoin", fetcher, {
     initialData: result,
-    refreshInterval: 1000,
   });
 
   if (!data) {
