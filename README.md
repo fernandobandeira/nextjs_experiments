@@ -1,34 +1,50 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+You can run the examples locally:
 
-## Getting Started
+You'll need the latest LTS node.js version or newer as well as yarn installed.
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
+```
+yarn
 yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Example 01 - Incremental Static Regeneration
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+This example is available at: https://nextjs-experiments-xi.vercel.app/nationalize/fernando
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+Code is here: https://github.com/fernandobandeira/nextjs_experiments/blob/main/pages/nationalize/%5Bname%5D.tsx
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+You can replace ```fernando``` with your name or another name. This example uses an API to predict the nationality of the name provided.
 
-## Learn More
+When someone requests a new name, it'll generate a new page and display a (loading...) indicator. Subsequent requests to the server will return a cached response.
 
-To learn more about Next.js, take a look at the following resources:
+We can also get rid of the loading indicator by forcing the server to fetch and cache it before returning the response to the first user. However, this would increase the initial response time of the website for the first access. (by removing the ``` fallback: true ``` from the ``` getStaticPaths ``` return value).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Example 02 - Stale While Revalidate
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+This example is available at: https://nextjs-experiments-xi.vercel.app/bitcoin
 
-## Deploy on Vercel
+Code is here: https://github.com/fernandobandeira/nextjs_experiments/blob/main/pages/bitcoin.tsx
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This example caches a stale version of the page for 1 minute. Content is refreshed and cached again after this period.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+We're refreshing the data every time the app is back to focus. Meaning that if the user scrolls down and them up again or switches tabs/windows, the content gets refreshed.
+
+One improvement is adding pooling for the data, refetching it after every 60 seconds on the browser. We achieve this by passing a ``` refreshInterval ``` value (in ms) to the useSWR hook.
+
+## Example 03 - Auth
+
+This example is available at: https://nextjs-experiments-xi.vercel.app/login
+
+Protected page available at: https://nextjs-experiments-xi.vercel.app/protected
+
+Code is here: https://github.com/fernandobandeira/nextjs_experiments/blob/main/pages/login.tsx, https://github.com/fernandobandeira/nextjs_experiments/blob/main/pages/protected.tsx
+
+Here we're checking if an authorization cookie gets set. If it's not, we force the user to login to see the protected page.
+
+We're adding a redirect using ``` window.location ``` in the HTML head, the user doesn't have to wait for the react app to load before redirecting to the right place.
+
+If the cookie got tampered (token isn't valid anymore), we catch it during the loading phase and redirect it to the correct location.
+
+Another thing commonly done in this situation is putting a ``` display:none ``` on the page's HTML style and only rendering the content after checking the cookie inside the script tag that we injected in the head tag.
+
+The pattern applied in this example is used on big tech companies, including https://vercel.com/, to achieve a faster speed on their apps.
